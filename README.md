@@ -1,75 +1,132 @@
-# DOSFinal - Estrutura Básica .NET
+# DOSFinal - Restaurant Reservation API
 
-Este projeto segue a arquitetura em camadas (Clean Architecture) para organização do código.
+Sistema de gestão de reservas de mesas em restaurantes desenvolvido em .NET Core 9.
+
+## 📋 Funcionalidades
+
+- ✅ Criar, consultar, atualizar e cancelar reservas
+- ✅ Deteção de conflitos de horários/mesas
+- ✅ API REST com documentação Swagger
+- ✅ Base de dados SQL Server com Entity Framework Code-First
+- ✅ Testes unitários com xUnit (22 testes)
+- ✅ Containerização com Docker
+- ✅ Pipeline CI/CD com Jenkins e SonarQube
+- ✅ Deployment em Kubernetes com Helm
 
 ## 📁 Estrutura do Projeto
 
 ```
 DOSFinal/
 ├── src/
-│   ├── DOSFinal.API/          # Camada de apresentação (Web API)
-│   ├── DOSFinal.Application/  # Camada de aplicação (Casos de uso)
-│   ├── DOSFinal.Domain/       # Camada de domínio (Entidades e regras de negócio)
-│   └── DOSFinal.Infrastructure/ # Camada de infraestrutura (Acesso a dados, serviços externos)
-└── DOSFinal.sln               # Arquivo de solução
+│   ├── DOSFinal.API/           # Web API (Controllers, Program.cs)
+│   ├── DOSFinal.Application/   # Serviços e DTOs
+│   ├── DOSFinal.Domain/        # Entidades e Interfaces
+│   └── DOSFinal.Infrastructure/ # Repositórios e DbContext
+├── tests/
+│   └── DOSFinal.Tests/         # Testes unitários (xUnit)
+├── helm/
+│   └── dosfinal/               # Helm Chart para Kubernetes
+├── Dockerfile                  # Build da API
+├── docker-compose.yml          # API + SQL Server
+├── Jenkinsfile                 # Pipeline CI/CD
+└── sonar-project.properties    # Configuração SonarQube
 ```
 
-## 🏗️ Camadas
+## 🚀 Endpoints da API
 
-### **DOSFinal.Domain**
-- Contém as entidades de domínio
-- Interfaces de repositórios
-- Regras de negócio fundamentais
-- Não possui dependências de outros projetos
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/status` | Health check |
+| GET | `/api/reservations` | Listar todas as reservas |
+| GET | `/api/reservations/{id}` | Detalhes de uma reserva |
+| GET | `/api/reservations?date={date}` | Reservas por data |
+| POST | `/api/reservations` | Criar reserva |
+| PUT | `/api/reservations/{id}` | Atualizar reserva |
+| DELETE | `/api/reservations/{id}` | Cancelar reserva |
 
-### **DOSFinal.Application**
-- Casos de uso da aplicação
-- DTOs (Data Transfer Objects)
-- Interfaces de serviços
-- Depende apenas do Domain
+## 💻 Como Executar
 
-### **DOSFinal.Infrastructure**
-- Implementação de repositórios
-- Acesso a banco de dados (Entity Framework, Dapper, etc.)
-- Serviços externos (APIs, Email, etc.)
-- Depende do Domain
-
-### **DOSFinal.API**
-- Controllers
-- Configuração de middlewares
-- Injeção de dependências
-- Ponto de entrada da aplicação
-- Depende de Application e Infrastructure
-
-## 🚀 Como Executar
-
-### Restaurar dependências
+### Localmente
 ```bash
+# Restaurar dependências
 dotnet restore
-```
 
-### Compilar a solução
-```bash
-dotnet build
-```
+# Executar testes
+dotnet test
 
-### Executar a API
-```bash
+# Executar a API (requer SQL Server)
 dotnet run --project src/DOSFinal.API/DOSFinal.API.csproj
 ```
 
-A API estará disponível em: `http://localhost:5000` ou `https://localhost:5001`
+### Com Docker
+```bash
+# Build e execução com docker-compose
+docker-compose up --build
 
-## 📦 Tecnologias
+# A API estará disponível em: http://localhost:5000
+# Swagger: http://localhost:5000/swagger
+```
+
+### Com Kubernetes (Helm)
+```bash
+# Instalar o Helm Chart
+helm install dosfinal ./helm/dosfinal --namespace dosfinal --create-namespace
+
+# Verificar status
+kubectl get pods -n dosfinal
+```
+
+## 📊 Testes
+
+O projeto inclui 22 testes unitários cobrindo:
+- `ReservationService` - Lógica de negócio e validação de conflitos
+- `Reservation` - Entidade de domínio
+- `ReservationDto` - Data Transfer Objects
+
+```bash
+# Executar testes com cobertura
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+## 🔧 Pipeline CI/CD (Jenkins)
+
+O Jenkinsfile inclui os seguintes stages:
+1. **Checkout** - Obter código fonte
+2. **Restore** - Restaurar dependências
+3. **Build** - Compilar solução
+4. **Test** - Executar testes unitários
+5. **SonarQube** - Análise de qualidade de código
+6. **Quality Gate** - Validar métricas
+7. **Docker Build** - Criar imagem Docker
+8. **Docker Push** - Publicar no registry
+9. **Deploy** - Deployment em Kubernetes via Helm
+
+## 📝 Modelo de Dados
+
+```sql
+CREATE TABLE Reservations (
+    Id INT PRIMARY KEY IDENTITY,
+    CustomerName NVARCHAR(100) NOT NULL,
+    ReservationDate DATE NOT NULL,
+    ReservationTime TIME NOT NULL,
+    TableNumber INT NOT NULL,
+    NumberOfPeople INT NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+```
+
+## 🛠️ Tecnologias
 
 - .NET 9.0
 - ASP.NET Core Web API
-- C#
+- Entity Framework Core 9.0
+- SQL Server 2022
+- xUnit + Moq
+- Docker & Docker Compose
+- Jenkins
+- SonarQube
+- Kubernetes + Helm
 
-## 📝 Próximos Passos
+## 👥 Autores
 
-1. Adicionar Entity Framework Core para acesso a dados
-2. Implementar autenticação e autorização
-3. Adicionar testes unitários e de integração
-4. Configurar Docker
-5. Implementar logging e monitoramento
+DOSFinal Team - 2026

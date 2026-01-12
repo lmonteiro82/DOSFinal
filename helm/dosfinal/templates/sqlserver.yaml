@@ -1,0 +1,87 @@
+{{- if .Values.sqlserver.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dosfinal.sqlserver.fullname" . }}
+  labels:
+    {{- include "dosfinal.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sqlserver
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sqlserver
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: sqlserver
+          image: "{{ .Values.sqlserver.image.repository }}:{{ .Values.sqlserver.image.tag }}"
+          ports:
+            - containerPort: 1433
+              name: mssql
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dosfinal.fullname" . }}-secrets
+                  key: sa-password
+            - name: MSSQL_PID
+              value: "Express"
+          volumeMounts:
+            - name: mssql-data
+              mountPath: /var/opt/mssql
+          resources:
+            {{- toYaml .Values.sqlserver.resources | nindent 12 }}
+      volumes:
+        - name: mssql-data
+          {{- if .Values.sqlserver.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "dosfinal.sqlserver.fullname" . }}-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dosfinal.sqlserver.fullname" . }}
+  labels:
+    {{- include "dosfinal.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  ports:
+    - port: 1433
+      targetPort: mssql
+      protocol: TCP
+      name: mssql
+  selector:
+    app.kubernetes.io/name: sqlserver
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Values.sqlserver.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dosfinal.sqlserver.fullname" . }}-pvc
+  labels:
+    {{- include "dosfinal.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.sqlserver.persistence.size }}
+  {{- if .Values.sqlserver.persistence.storageClass }}
+  storageClassName: {{ .Values.sqlserver.persistence.storageClass }}
+  {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/out/
+**/logs/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/.git/
+**/*.md
+**/.[Dd]ebug
+**/[Rr]elease
+**/[Tt]est[Rr]esults
+**/*.user
+**/*.suo
+**/*.cache
+**/TestResults/
+**/.DS_Store
