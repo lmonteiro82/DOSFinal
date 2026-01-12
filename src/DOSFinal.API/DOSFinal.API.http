@@ -1,0 +1,6 @@
+@DOSFinal.API_HostAddress = http://localhost:5020
+
+GET {{DOSFinal.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
