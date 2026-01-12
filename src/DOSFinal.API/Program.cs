@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 
 // Configure Entity Framework with SQL Server
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=localhost,1433;Database=ReservationsDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;";
+    ?? "Server=localhost,1433;Database=ReservationsDb;User Id=sa;Password=Mercedes#44;TrustServerCertificate=True;";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -53,7 +53,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "DOSFinal API v1");
-        options.RoutePrefix = string.Empty; // Swagger at root
     });
 }
 
